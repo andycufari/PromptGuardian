@@ -1,0 +1,270 @@
+@font-face {
+  font-family: 'PGMono';
+  src: local('IBM Plex Mono'), local('Menlo'), local('Consolas'), local('monospace');
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  width: 380px;
+  min-height: 400px;
+  background: #0F0905;
+  color: #FFB000;
+  font-family: 'PGMono', 'IBM Plex Mono', 'Menlo', 'Consolas', monospace;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+#app {
+  padding: 12px;
+}
+
+/* Header */
+header {
+  margin-bottom: 12px;
+  position: relative;
+}
+
+.title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+h1 {
+  font-size: 16px;
+  letter-spacing: 2px;
+  color: #FFB000;
+  text-shadow: 0 0 8px rgba(255, 176, 0, 0.4);
+}
+
+h1 .accent {
+  color: #FF6B00;
+}
+
+.scanline {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    #FFB000 20%,
+    #FFB000 80%,
+    transparent 100%
+  );
+  opacity: 0.3;
+  margin-top: 8px;
+}
+
+/* Toggle switch */
+.toggle-switch {
+  position: relative;
+  width: 40px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  inset: 0;
+  background: #331a00;
+  border: 1px solid #FFB000;
+  border-radius: 10px;
+  transition: 0.2s;
+}
+
+.slider::before {
+  content: '';
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  left: 2px;
+  bottom: 2px;
+  background: #666;
+  border-radius: 50%;
+  transition: 0.2s;
+}
+
+.toggle-switch input:checked + .slider {
+  background: #332200;
+}
+
+.toggle-switch input:checked + .slider::before {
+  transform: translateX(20px);
+  background: #FFB000;
+  box-shadow: 0 0 6px rgba(255, 176, 0, 0.6);
+}
+
+/* Panels */
+.panel {
+  margin-bottom: 12px;
+  border: 1px solid #331a00;
+  border-radius: 4px;
+  padding: 8px;
+}
+
+h2 {
+  font-size: 11px;
+  color: #FF6B00;
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+}
+
+/* Rule list */
+.rule-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rule-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 6px;
+  background: #1a0e02;
+  border-radius: 3px;
+  border: 1px solid #221100;
+}
+
+.rule-item .rule-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.rule-item .rule-label {
+  color: #FFB000;
+  font-size: 11px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rule-item .rule-type {
+  color: #886600;
+  font-size: 10px;
+  flex-shrink: 0;
+}
+
+.rule-item .rule-note {
+  color: #ef4444;
+  font-size: 9px;
+}
+
+.rule-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.rule-actions button {
+  background: none;
+  border: none;
+  color: #886600;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 2px;
+  font-family: inherit;
+}
+
+.rule-actions button:hover {
+  color: #ef4444;
+}
+
+/* Toggle in rule */
+.rule-toggle {
+  width: 14px;
+  height: 14px;
+  accent-color: #FFB000;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* Add forms */
+.add-form {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.input-field {
+  background: #1a0e02;
+  border: 1px solid #331a00;
+  color: #FFB000;
+  padding: 5px 8px;
+  border-radius: 3px;
+  font-family: inherit;
+  font-size: 11px;
+  outline: none;
+}
+
+.input-field:focus {
+  border-color: #FFB000;
+  box-shadow: 0 0 4px rgba(255, 176, 0, 0.2);
+}
+
+.input-field::placeholder {
+  color: #553300;
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #886600;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.checkbox-row input {
+  accent-color: #FFB000;
+}
+
+.btn {
+  background: #331a00;
+  border: 1px solid #FFB000;
+  color: #FFB000;
+  padding: 5px 12px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 11px;
+  letter-spacing: 1px;
+  transition: 0.15s;
+}
+
+.btn:hover {
+  background: #FFB000;
+  color: #0F0905;
+}
+
+.error-msg {
+  color: #ef4444;
+  font-size: 10px;
+  min-height: 14px;
+}
+
+/* Footer */
+footer {
+  margin-top: 8px;
+}
+
+.disclaimer {
+  color: #886600;
+  font-size: 9px;
+  line-height: 1.4;
+  opacity: 0.8;
+}

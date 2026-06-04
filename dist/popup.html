@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PromptGuardian</title>
+  <script type="module" crossorigin src="./popup.js"></script>
+  <link rel="stylesheet" crossorigin href="./popup.css">
+</head>
+<body>
+  <div id="app">
+    <header>
+      <div class="title-row">
+        <h1>PROMPT<span class="accent">GUARDIAN</span></h1>
+        <label class="toggle-switch" title="Master toggle">
+          <input type="checkbox" id="master-toggle" checked>
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="scanline"></div>
+    </header>
+
+    <main>
+      <!-- Presets Section -->
+      <section class="panel">
+        <h2>> PRESETS</h2>
+        <div id="presets-list" class="rule-list"></div>
+      </section>
+
+      <!-- Custom Regex Section -->
+      <section class="panel">
+        <h2>> CUSTOM REGEX</h2>
+        <div id="custom-list" class="rule-list"></div>
+        <div class="add-form" id="custom-form">
+          <input type="text" id="custom-label" placeholder="Label" class="input-field">
+          <input type="text" id="custom-token" placeholder="Token type (e.g. SSN)" class="input-field">
+          <input type="text" id="custom-pattern" placeholder="Regex pattern" class="input-field">
+          <input type="text" id="custom-flags" placeholder="Flags (e.g. gi)" class="input-field" value="gi">
+          <div id="custom-error" class="error-msg"></div>
+          <button id="custom-add" class="btn">+ ADD RULE</button>
+        </div>
+      </section>
+
+      <!-- Plain Values Section -->
+      <section class="panel">
+        <h2>> PLAIN VALUES</h2>
+        <div id="plain-list" class="rule-list"></div>
+        <div class="add-form" id="plain-form">
+          <input type="text" id="plain-value" placeholder="Value (e.g. your name)" class="input-field">
+          <input type="text" id="plain-token" placeholder="Token type (e.g. NAME)" class="input-field">
+          <label class="checkbox-row">
+            <input type="checkbox" id="plain-accent">
+            <span>Accent-insensitive</span>
+          </label>
+          <button id="plain-add" class="btn">+ ADD VALUE</button>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p class="disclaimer">&#9888; v1 stores data as plain JSON locally. This protects PII from the model, not from local disk access.</p>
+    </footer>
+  </div>
+</body>
+</html>

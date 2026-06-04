@@ -24,6 +24,15 @@ You see the reply with your real values swapped back in.
 
 ## Install
 
+### Quick install (no build needed)
+
+1. Download or clone this repo
+2. Go to `chrome://extensions`
+3. Enable **Developer mode**
+4. Click **Load unpacked** and select the `dist/` folder
+
+### From source
+
 ```bash
 git clone git@github.com:andycufari/PromptGuardian.git
 cd PromptGuardian
@@ -31,10 +40,7 @@ npm install
 npm run build
 ```
 
-Then load in Chrome:
-1. Go to `chrome://extensions`
-2. Enable **Developer mode**
-3. Click **Load unpacked** and select the `dist/` folder
+Then load the `dist/` folder in `chrome://extensions` as above.
 
 ## Usage
 
