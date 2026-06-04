@@ -69,7 +69,21 @@ function renderProtected() {
   const plains = vault.rules.filter((r) => r.source === 'plain');
   protectedList.innerHTML = '';
 
+  // Count per tokenType to show numbered labels (PHONE_1, PHONE_2)
+  const typeCounts: Record<string, number> = {};
+  const typeTotal: Record<string, number> = {};
   for (const rule of plains) {
+    typeTotal[rule.tokenType] = (typeTotal[rule.tokenType] || 0) + 1;
+  }
+
+  for (const rule of plains) {
+    typeCounts[rule.tokenType] = (typeCounts[rule.tokenType] || 0) + 1;
+    const count = typeCounts[rule.tokenType];
+    const needsNumber = typeTotal[rule.tokenType] > 1;
+    const displayType = needsNumber
+      ? `${rule.tokenType}_${count}`
+      : rule.tokenType;
+
     const el = document.createElement('div');
     el.className = 'rule-item';
     const match = rule.match as { kind: 'literal'; value: string; accentInsensitive: boolean };
@@ -78,7 +92,7 @@ function renderProtected() {
         <input type="checkbox" class="rule-toggle" data-id="${rule.id}" ${rule.enabled ? 'checked' : ''}>
         <span class="rule-label">"${escapeHtml(match.value)}"</span>
         <span class="rule-arrow">&rarr;</span>
-        <span class="rule-type">${escapeHtml(rule.tokenType)}</span>
+        <span class="rule-type">${escapeHtml(displayType)}</span>
       </div>
       <div class="rule-actions">
         <button class="delete-btn" data-id="${rule.id}" title="Remove">&times;</button>
