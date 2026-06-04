@@ -44,49 +44,43 @@ Then load the `dist/` folder in `chrome://extensions` as above.
 
 ## Usage
 
-Click the extension icon to open the popup. There are three ways to protect your data:
+Click the extension icon to open the popup.
 
-### 1. Presets (built-in detectors)
+### Protect a value
 
-Toggle on/off the built-in rules. Enabled by default: Email, CUIT/CUIL, Argentine Phone, Credit Card (Luhn-validated). Disabled by default: IPv4, DNI (raw 7-8 digits — high false-positive rate).
+The main way to use PromptGuardian. Just type what you want to hide:
 
-### 2. Custom Regex
+1. Enter the text (your name, ID number, address, etc.)
+2. Pick a category (Name, ID, Address, Phone, Company, Other)
+3. Click **PROTECT**
 
-Add your own regex patterns. Example:
+That's it. The category automatically determines what ChatGPT sees instead of your real data. For example, if you protect "Juan Perez" with category **Name**, ChatGPT will see `NAME_1` instead.
 
-| Field        | Value             |
-|--------------|-------------------|
-| Label        | `Passport`        |
-| Token type   | `PASSPORT`        |
-| Pattern      | `[A-Z]{3}\d{6}`   |
-| Flags        | `gi`              |
+Want to customize the replacement label? Click **"Replace by"** to expand and type your own.
 
-The regex is validated live — if it doesn't compile, you'll see an inline error.
+Check **"Ignore accents"** if you want `Andres` to also catch `Andres`.
 
-### 3. Plain Values (recommended for personal data)
+### Auto-detection
 
-Add literal strings you want to protect. This is the simplest and most reliable option.
+Built-in rules that automatically detect common patterns in your messages. Toggle them on/off:
 
-| Field       | What to enter                         |
-|-------------|---------------------------------------|
-| **Value**   | The actual text to hide (your name, ID number, address, etc.) |
-| **Token type** | A short label — becomes part of the placeholder. Use simple alphanumeric like `NAME`, `DNI`, `ADDRESS` |
-| **Accent-insensitive** | Check this if you want `Andres` to also match `Andres` |
+- **Email** — on by default
+- **CUIT/CUIL** — on by default
+- **Phone (AR)** — on by default
+- **Credit Card** — on by default (with Luhn validation to reduce false matches)
+- **IPv4** — off by default
+- **DNI (raw digits)** — off by default (may over-match any 7-8 digit number)
 
-**Example:** To protect your name "Juan Perez":
-- Value: `Juan Perez`
-- Token type: `NAME`
-- ChatGPT will see: `⟦NAME_1⟧`
-- You'll see the reply with `Juan Perez` swapped back in
+### Advanced: custom patterns
 
-> **Tip:** The token type should be a simple label, not the value itself. Use `NAME` not `Juan Perez`. Use `DNI` not `12345678`.
+Hidden by default. Click to expand. Add your own regex patterns for advanced matching.
 
 ### Badge
 
 A small overlay on the ChatGPT page shows live protection status:
-- **🛡️ N anonymized** (amber) — N values were replaced in your last message
-- **🛡️ ready** (green) — extension is active, waiting for input
-- **⚠️ not protected** (red) — interception failed or master toggle is off
+- **N anonymized** (amber) — N values were replaced in your last message
+- **ready** (green) — extension is active, waiting for input
+- **not protected** (red) — interception failed or master toggle is off
 
 ### Master toggle
 

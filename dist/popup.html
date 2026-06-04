@@ -21,44 +21,62 @@
     </header>
 
     <main>
-      <!-- Presets Section -->
+      <!-- Protect a value — the main feature -->
       <section class="panel">
-        <h2>> PRESETS</h2>
+        <h2>> PROTECT A VALUE</h2>
+        <p class="hint">Type anything you want to hide from ChatGPT.</p>
+        <div id="protected-list" class="rule-list"></div>
+        <div class="add-form" id="protect-form">
+          <input type="text" id="protect-value" placeholder="e.g. Juan Perez, 20-12345678-9, my address..." class="input-field">
+          <div class="form-row">
+            <select id="protect-category" class="input-field select-field">
+              <option value="NAME">Name</option>
+              <option value="ID">ID / Document</option>
+              <option value="ADDRESS">Address</option>
+              <option value="PHONE">Phone</option>
+              <option value="COMPANY">Company</option>
+              <option value="OTHER">Other</option>
+            </select>
+            <label class="checkbox-row">
+              <input type="checkbox" id="protect-accent">
+              <span>Ignore accents</span>
+            </label>
+          </div>
+          <details class="replace-by-details">
+            <summary class="replace-by-summary">Replace by: <span id="protect-preview" class="preview-token">NAME</span></summary>
+            <input type="text" id="protect-replace" placeholder="Custom label" class="input-field" style="margin-top:4px;">
+            <p class="hint small">ChatGPT will see this label instead of your value.</p>
+          </details>
+          <button id="protect-add" class="btn btn-primary">+ PROTECT</button>
+        </div>
+      </section>
+
+      <!-- Auto-detection presets -->
+      <section class="panel">
+        <h2>> AUTO-DETECTION</h2>
+        <p class="hint">Automatically detects common patterns in your messages.</p>
         <div id="presets-list" class="rule-list"></div>
       </section>
 
-      <!-- Custom Regex Section -->
-      <section class="panel">
-        <h2>> CUSTOM REGEX</h2>
-        <div id="custom-list" class="rule-list"></div>
-        <div class="add-form" id="custom-form">
-          <input type="text" id="custom-label" placeholder="Label" class="input-field">
-          <input type="text" id="custom-token" placeholder="Token type (e.g. SSN)" class="input-field">
-          <input type="text" id="custom-pattern" placeholder="Regex pattern" class="input-field">
-          <input type="text" id="custom-flags" placeholder="Flags (e.g. gi)" class="input-field" value="gi">
-          <div id="custom-error" class="error-msg"></div>
-          <button id="custom-add" class="btn">+ ADD RULE</button>
+      <!-- Advanced: custom regex — collapsed by default -->
+      <details class="panel advanced-panel">
+        <summary class="advanced-toggle">> ADVANCED: CUSTOM PATTERNS</summary>
+        <div class="advanced-content">
+          <div id="custom-list" class="rule-list"></div>
+          <div class="add-form" id="custom-form">
+            <input type="text" id="custom-label" placeholder="Label" class="input-field">
+            <input type="text" id="custom-token" placeholder="Replace by (e.g. SSN)" class="input-field">
+            <input type="text" id="custom-pattern" placeholder="Regex pattern" class="input-field">
+            <input type="text" id="custom-flags" placeholder="Flags (e.g. gi)" class="input-field" value="gi">
+            <div id="custom-error" class="error-msg"></div>
+            <button id="custom-add" class="btn">+ ADD PATTERN</button>
+          </div>
         </div>
-      </section>
-
-      <!-- Plain Values Section -->
-      <section class="panel">
-        <h2>> PLAIN VALUES</h2>
-        <div id="plain-list" class="rule-list"></div>
-        <div class="add-form" id="plain-form">
-          <input type="text" id="plain-value" placeholder="Value (e.g. your name)" class="input-field">
-          <input type="text" id="plain-token" placeholder="Token type (e.g. NAME)" class="input-field">
-          <label class="checkbox-row">
-            <input type="checkbox" id="plain-accent">
-            <span>Accent-insensitive</span>
-          </label>
-          <button id="plain-add" class="btn">+ ADD VALUE</button>
-        </div>
-      </section>
+      </details>
     </main>
 
     <footer>
-      <p class="disclaimer">&#9888; v1 stores data as plain JSON locally. This protects PII from the model, not from local disk access.</p>
+      <p class="disclaimer">v1 stores data as plain JSON locally. This protects your data from the AI model, not from local disk access.</p>
     </footer>
   </div>
 </body>

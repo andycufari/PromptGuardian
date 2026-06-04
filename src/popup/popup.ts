@@ -6,7 +6,15 @@ let vault: Vault;
 const masterToggle = document.getElementById('master-toggle') as HTMLInputElement;
 const presetsList = document.getElementById('presets-list')!;
 const customList = document.getElementById('custom-list')!;
-const plainList = document.getElementById('plain-list')!;
+const protectedList = document.getElementById('protected-list')!;
+
+// Protect form
+const protectValue = document.getElementById('protect-value') as HTMLInputElement;
+const protectCategory = document.getElementById('protect-category') as HTMLSelectElement;
+const protectAccent = document.getElementById('protect-accent') as HTMLInputElement;
+const protectReplace = document.getElementById('protect-replace') as HTMLInputElement;
+const protectPreview = document.getElementById('protect-preview')!;
+const protectAdd = document.getElementById('protect-add')!;
 
 // Custom form
 const customLabel = document.getElementById('custom-label') as HTMLInputElement;
@@ -15,12 +23,6 @@ const customPattern = document.getElementById('custom-pattern') as HTMLInputElem
 const customFlags = document.getElementById('custom-flags') as HTMLInputElement;
 const customError = document.getElementById('custom-error')!;
 const customAdd = document.getElementById('custom-add')!;
-
-// Plain form
-const plainValue = document.getElementById('plain-value') as HTMLInputElement;
-const plainToken = document.getElementById('plain-token') as HTMLInputElement;
-const plainAccent = document.getElementById('plain-accent') as HTMLInputElement;
-const plainAdd = document.getElementById('plain-add')!;
 
 async function loadVault(): Promise<Vault> {
   return new Promise((resolve) => {
@@ -44,6 +46,81 @@ function generateId(): string {
   return `rule_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 }
 
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+// --- Protect a value (plain rules) ---
+
+function getEffectiveTokenType(): string {
+  const custom = protectReplace.value.trim().toUpperCase();
+  if (custom) return custom;
+  return protectCategory.value;
+}
+
+function updatePreview() {
+  protectPreview.textContent = getEffectiveTokenType();
+}
+
+protectCategory.addEventListener('change', updatePreview);
+protectReplace.addEventListener('input', updatePreview);
+
+function renderProtected() {
+  const plains = vault.rules.filter((r) => r.source === 'plain');
+  protectedList.innerHTML = '';
+
+  for (const rule of plains) {
+    const el = document.createElement('div');
+    el.className = 'rule-item';
+    const match = rule.match as { kind: 'literal'; value: string; accentInsensitive: boolean };
+    el.innerHTML = `
+      <div class="rule-info">
+        <input type="checkbox" class="rule-toggle" data-id="${rule.id}" ${rule.enabled ? 'checked' : ''}>
+        <span class="rule-label">"${escapeHtml(match.value)}"</span>
+        <span class="rule-arrow">&rarr;</span>
+        <span class="rule-type">${escapeHtml(rule.tokenType)}</span>
+      </div>
+      <div class="rule-actions">
+        <button class="delete-btn" data-id="${rule.id}" title="Remove">&times;</button>
+      </div>
+    `;
+    protectedList.appendChild(el);
+  }
+
+  bindToggleAndDelete(protectedList, renderProtected);
+}
+
+protectAdd.addEventListener('click', () => {
+  const value = protectValue.value.trim();
+  if (!value) return;
+
+  const tokenType = getEffectiveTokenType().replace(/[^A-Za-z0-9_]/g, '').toUpperCase() || 'VALUE';
+
+  const rule: Rule = {
+    id: generateId(),
+    source: 'plain',
+    enabled: true,
+    label: value,
+    tokenType,
+    match: {
+      kind: 'literal',
+      value,
+      accentInsensitive: protectAccent.checked,
+    },
+  };
+
+  vault.rules.push(rule);
+  saveVault();
+  renderProtected();
+
+  protectValue.value = '';
+  protectReplace.value = '';
+  protectAccent.checked = false;
+  updatePreview();
+});
+
+// --- Presets ---
+
 function renderPresets() {
   const presets = vault.rules.filter((r) => r.source === 'preset');
   presetsList.innerHTML = '';
@@ -54,14 +131,13 @@ function renderPresets() {
 
     const isDniRaw = rule.id === 'preset-dni-raw';
     const noteHtml = isDniRaw
-      ? '<span class="rule-note"> may over-match any 7-8 digit number</span>'
+      ? '<span class="rule-note"> may over-match</span>'
       : '';
 
     el.innerHTML = `
       <div class="rule-info">
         <input type="checkbox" class="rule-toggle" data-id="${rule.id}" ${rule.enabled ? 'checked' : ''}>
-        <span class="rule-label">${rule.label}</span>
-        <span class="rule-type">[${rule.tokenType}]</span>
+        <span class="rule-label">${escapeHtml(rule.label)}</span>
         ${noteHtml}
       </div>
     `;
@@ -80,6 +156,8 @@ function renderPresets() {
   });
 }
 
+// --- Custom regex (advanced) ---
+
 function renderCustom() {
   const customs = vault.rules.filter((r) => r.source === 'custom');
   customList.innerHTML = '';
@@ -91,106 +169,30 @@ function renderCustom() {
     el.innerHTML = `
       <div class="rule-info">
         <input type="checkbox" class="rule-toggle" data-id="${rule.id}" ${rule.enabled ? 'checked' : ''}>
-        <span class="rule-label">${rule.label}</span>
-        <span class="rule-type">/${match.pattern}/${match.flags}</span>
+        <span class="rule-label">${escapeHtml(rule.label)}</span>
+        <span class="rule-type">/${escapeHtml(match.pattern)}/${escapeHtml(match.flags)}</span>
       </div>
       <div class="rule-actions">
-        <button class="delete-btn" data-id="${rule.id}">x</button>
+        <button class="delete-btn" data-id="${rule.id}" title="Remove">&times;</button>
       </div>
     `;
     customList.appendChild(el);
   }
 
-  customList.querySelectorAll('.rule-toggle').forEach((cb) => {
-    (cb as HTMLInputElement).addEventListener('change', (e) => {
-      const id = (e.target as HTMLInputElement).dataset.id!;
-      const rule = vault.rules.find((r) => r.id === id);
-      if (rule) {
-        rule.enabled = (e.target as HTMLInputElement).checked;
-        saveVault();
-      }
-    });
-  });
-
-  customList.querySelectorAll('.delete-btn').forEach((btn) => {
-    (btn as HTMLButtonElement).addEventListener('click', (e) => {
-      const id = (e.target as HTMLButtonElement).dataset.id!;
-      vault.rules = vault.rules.filter((r) => r.id !== id);
-      saveVault();
-      renderCustom();
-    });
-  });
+  bindToggleAndDelete(customList, renderCustom);
 }
 
-function renderPlain() {
-  const plains = vault.rules.filter((r) => r.source === 'plain');
-  plainList.innerHTML = '';
-
-  for (const rule of plains) {
-    const el = document.createElement('div');
-    el.className = 'rule-item';
-    const match = rule.match as { kind: 'literal'; value: string; accentInsensitive: boolean };
-    const accentLabel = match.accentInsensitive ? ' [accent-free]' : '';
-    el.innerHTML = `
-      <div class="rule-info">
-        <input type="checkbox" class="rule-toggle" data-id="${rule.id}" ${rule.enabled ? 'checked' : ''}>
-        <span class="rule-label">"${match.value}"</span>
-        <span class="rule-type">[${rule.tokenType}]${accentLabel}</span>
-      </div>
-      <div class="rule-actions">
-        <button class="delete-btn" data-id="${rule.id}">x</button>
-      </div>
-    `;
-    plainList.appendChild(el);
-  }
-
-  plainList.querySelectorAll('.rule-toggle').forEach((cb) => {
-    (cb as HTMLInputElement).addEventListener('change', (e) => {
-      const id = (e.target as HTMLInputElement).dataset.id!;
-      const rule = vault.rules.find((r) => r.id === id);
-      if (rule) {
-        rule.enabled = (e.target as HTMLInputElement).checked;
-        saveVault();
-      }
-    });
-  });
-
-  plainList.querySelectorAll('.delete-btn').forEach((btn) => {
-    (btn as HTMLButtonElement).addEventListener('click', (e) => {
-      const id = (e.target as HTMLButtonElement).dataset.id!;
-      vault.rules = vault.rules.filter((r) => r.id !== id);
-      saveVault();
-      renderPlain();
-    });
-  });
-}
-
-function renderAll() {
-  masterToggle.checked = vault.settings.masterEnabled;
-  renderPresets();
-  renderCustom();
-  renderPlain();
-}
-
-// Master toggle
-masterToggle.addEventListener('change', () => {
-  vault.settings.masterEnabled = masterToggle.checked;
-  saveVault();
-});
-
-// Add custom rule
 customAdd.addEventListener('click', () => {
   const label = customLabel.value.trim();
-  const tokenType = customToken.value.trim().toUpperCase();
+  const tokenType = customToken.value.trim().toUpperCase().replace(/[^A-Za-z0-9_]/g, '') || 'CUSTOM';
   const pattern = customPattern.value;
   const flags = customFlags.value.trim();
 
-  if (!label || !tokenType || !pattern) {
-    customError.textContent = 'All fields are required.';
+  if (!label || !pattern) {
+    customError.textContent = 'Label and pattern are required.';
     return;
   }
 
-  // Validate regex
   try {
     new RegExp(pattern, flags);
   } catch (e) {
@@ -219,39 +221,50 @@ customAdd.addEventListener('click', () => {
   customFlags.value = 'gi';
 });
 
-// Add plain value
-plainAdd.addEventListener('click', () => {
-  const value = plainValue.value.trim();
-  const tokenType = plainToken.value.trim().toUpperCase();
+// --- Shared helpers ---
 
-  if (!value || !tokenType) return;
+function bindToggleAndDelete(container: HTMLElement, rerender: () => void) {
+  container.querySelectorAll('.rule-toggle').forEach((cb) => {
+    (cb as HTMLInputElement).addEventListener('change', (e) => {
+      const id = (e.target as HTMLInputElement).dataset.id!;
+      const rule = vault.rules.find((r) => r.id === id);
+      if (rule) {
+        rule.enabled = (e.target as HTMLInputElement).checked;
+        saveVault();
+      }
+    });
+  });
 
-  const rule: Rule = {
-    id: generateId(),
-    source: 'plain',
-    enabled: true,
-    label: value,
-    tokenType,
-    match: {
-      kind: 'literal',
-      value,
-      accentInsensitive: plainAccent.checked,
-    },
-  };
+  container.querySelectorAll('.delete-btn').forEach((btn) => {
+    (btn as HTMLButtonElement).addEventListener('click', (e) => {
+      const id = ((e.target as HTMLElement).closest('.delete-btn') as HTMLButtonElement).dataset.id!;
+      vault.rules = vault.rules.filter((r) => r.id !== id);
+      saveVault();
+      rerender();
+    });
+  });
+}
 
-  vault.rules.push(rule);
+// --- Master toggle ---
+
+masterToggle.addEventListener('change', () => {
+  vault.settings.masterEnabled = masterToggle.checked;
   saveVault();
-  renderPlain();
-
-  plainValue.value = '';
-  plainToken.value = '';
-  plainAccent.checked = false;
 });
 
-// Init
+// --- Init ---
+
+function renderAll() {
+  masterToggle.checked = vault.settings.masterEnabled;
+  renderProtected();
+  renderPresets();
+  renderCustom();
+}
+
 async function init() {
   vault = await loadVault();
   renderAll();
+  updatePreview();
 }
 
 init();
